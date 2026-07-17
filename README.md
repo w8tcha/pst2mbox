@@ -12,8 +12,6 @@ A .NET command-line tool that converts an Outlook Personal Store `.pst` file int
 dotnet build
 ```
 
-This produces `pst2mbox.exe` in `bin/Debug/net10.0/`.
-
 ## Usage
 
 ```
