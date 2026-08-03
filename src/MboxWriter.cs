@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using MimeKit;
 
 namespace Pst2Mbox;
@@ -13,7 +14,7 @@ namespace Pst2Mbox;
 /// </summary>
 internal sealed class MboxWriter : IDisposable
 {
-    private static readonly byte[] NewLine = "\n"u8.ToArray();
+    private static readonly byte[] NewLine = [.. "\n"u8];
     private readonly Stream _stream;
     private readonly FormatOptions _formatOptions;
     private bool _wroteFirstMessage;

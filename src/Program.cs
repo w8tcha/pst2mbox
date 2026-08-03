@@ -7,7 +7,8 @@ var overwrite = false;
 var verbose = false;
 var splitByFolder = false;
 
-for (var i = 0; i < args.Length; i++)
+var i = 0;
+while (i < args.Length)
 {
     switch (args[i])
     {
@@ -46,6 +47,8 @@ for (var i = 0; i < args.Length; i++)
             arguments.Add(args[i]);
             break;
     }
+
+    i++;
 }
 
 if (arguments.Count != 2)

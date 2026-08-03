@@ -7,7 +7,7 @@ namespace Pst2Mbox;
 
 /// <summary>
 /// Converts an XstReader message (a MAPI item read out of a .pst/.ost file) into a MimeKit
-/// MimeMessage, so it can be serialized as a standard RFC 5322 message inside an mbox file.
+/// MimeMessage, so it can be serialized as a standard RFC 5322 message inside a mbox file.
 /// </summary>
 internal static class MimeMessageFactory
 {
