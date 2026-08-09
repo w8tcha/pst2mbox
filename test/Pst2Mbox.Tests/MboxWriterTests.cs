@@ -151,7 +151,7 @@ public class MboxWriterTests
         var subjects = new List<string>();
         while (!parser.IsEndOfStream)
         {
-            var message = parser.ParseMessage();
+            var message = parser.ParseMessage(TestContext.Current.CancellationToken);
             subjects.Add(message.Subject ?? string.Empty);
         }
 
