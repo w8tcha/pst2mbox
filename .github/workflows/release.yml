@@ -1,0 +1,73 @@
+name: release
+
+on:
+  workflow_run:
+    workflows:
+      - build dotnet
+    branches:
+      - main
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Extract version from Pst2Mbox.csproj
+        id: version
+        shell: pwsh
+        run: |
+          $content = Get-Content src/Pst2Mbox.csproj -Raw
+          $match = [regex]::Match($content, 'Version\("([^"]+)"\)')
+          if (-not $match.Success) {
+            Write-Error "Could not find Version in src/Pst2Mbox.csproj"
+            exit 1
+          }
+          $version = $match.Groups[1].Value
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+
+      - name: Check if release already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          gh release view "${{ steps.version.outputs.tag }}" --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            "exists=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "exists=false" >> $env:GITHUB_OUTPUT
+          }
+          exit 0
+
+      - name: Setup .NET SDK
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        if: steps.check.outputs.exists == 'false'
+        run: dotnet publish src/Pst2Mbox.csproj -c Release -r win-x64 --self-contained true -o publish
+
+      - name: Create zip archive
+        if: steps.check.outputs.exists == 'false'
+        shell: pwsh
+        run: Compress-Archive -Path publish\* -DestinationPath "Pst2Mbox-${{ steps.version.outputs.version }}-win-x64.zip"
+
+      - name: Create GitHub release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ steps.version.outputs.tag }}" "Pst2Mbox-${{ steps.version.outputs.version }}-win-x64.zip" --repo $env:GITHUB_REPOSITORY --title "Pst2Mbox ${{ steps.version.outputs.tag }}" --generate-notes
