@@ -29,6 +29,7 @@ jobs:
         run: |
           VERSION=$(grep -m1 -oE '<Version>[^<]+</Version>' src/Pst2Mbox.csproj | sed -E 's/<\/?Version>//g')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check if release tag already exists
         id: check_tag
@@ -42,22 +43,22 @@ jobs:
           fi
 
       - name: Setup .NET SDK
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
       - name: Publish
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         run: dotnet publish src/Pst2Mbox.csproj -c Release -r win-x64 --self-contained true -o publish
 
       - name: Create zip archive
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         shell: pwsh
         run: Compress-Archive -Path publish\* -DestinationPath "Pst2Mbox-${{ steps.version.outputs.version }}-win-x64.zip"
 
       - name: Create GitHub release
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release create "${{ steps.version.outputs.tag }}" "Pst2Mbox-${{ steps.version.outputs.version }}-win-x64.zip" --repo $env:GITHUB_REPOSITORY --title "Pst2Mbox ${{ steps.version.outputs.tag }}" --generate-notes
