@@ -27,15 +27,8 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $content = Get-Content src/Pst2Mbox.csproj -Raw
-          $match = [regex]::Match($content, 'Version\("([^"]+)"\)')
-          if (-not $match.Success) {
-            Write-Error "Could not find Version in src/Pst2Mbox.csproj"
-            exit 1
-          }
-          $version = $match.Groups[1].Value
-          "version=$version" >> $env:GITHUB_OUTPUT
-          "tag=v$version" >> $env:GITHUB_OUTPUT
+          VERSION=$(grep -m1 -oE '<Version>[^<]+</Version>' src/Pst2Mbox.csproj | sed -E 's/<\/?Version>//g')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check if release already exists
         id: check
