@@ -30,19 +30,16 @@ jobs:
           VERSION=$(grep -m1 -oE '<Version>[^<]+</Version>' src/Pst2Mbox.csproj | sed -E 's/<\/?Version>//g')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Check if release already exists
-        id: check
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: pwsh
+      - name: Check if release tag already exists
+        id: check_tag
+        shell: bash
         run: |
-          gh release view "${{ steps.version.outputs.tag }}" --repo $env:GITHUB_REPOSITORY 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            "exists=true" >> $env:GITHUB_OUTPUT
-          } else {
-            "exists=false" >> $env:GITHUB_OUTPUT
-          }
-          exit 0
+          TAG="v${{ steps.version.outputs.version }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup .NET SDK
         if: steps.check.outputs.exists == 'false'
