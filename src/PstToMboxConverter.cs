@@ -20,7 +20,11 @@ internal static class PstToMboxConverter
             throw new InvalidOperationException(
                 $"Output file '{options.MboxPath}' already exists. Pass --overwrite to replace it.");
 
-        using var xstFile = new XstFile(options.PstPath);
+        // Deliberately not disposed: XstFile.Dispose() spawns an unguarded background thread to
+        // clear its cached folder tree, racing its own synchronous stream teardown; any exception
+        // there escapes as an unhandled exception on that thread. The process exits after one
+        // conversion anyway, so the OS reclaims the handle without needing Dispose().
+        var xstFile = new XstFile(options.PstPath);
         using var output = new FileStream(options.MboxPath, FileMode.Create, FileAccess.Write, FileShare.None);
         using var writer = new MboxWriter(output);
 
@@ -39,7 +43,8 @@ internal static class PstToMboxConverter
 
         Directory.CreateDirectory(options.MboxPath);
 
-        using var xstFile = new XstFile(options.PstPath);
+        // See ConvertSingleFile for why xstFile is not disposed.
+        var xstFile = new XstFile(options.PstPath);
         var usedFileNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         WalkFolderSplit(xstFile.RootFolder, options, stats, usedFileNames);
