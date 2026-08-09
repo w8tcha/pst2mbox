@@ -23,9 +23,9 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Extract version from Pst2Mbox.csproj
+      - name: Get version from csproj
         id: version
-        shell: pwsh
+        shell: bash
         run: |
           VERSION=$(grep -m1 -oE '<Version>[^<]+</Version>' src/Pst2Mbox.csproj | sed -E 's/<\/?Version>//g')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
