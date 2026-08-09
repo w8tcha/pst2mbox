@@ -204,7 +204,7 @@ public class PstToMboxConverterTests : IDisposable
         MimeMessage? multiAttachment = null;
         while (!parser.IsEndOfStream)
         {
-            var message = parser.ParseMessage(TestContext.Current.CancellationToken);
+            var message = parser.ParseMessage();
             if (message.Subject == "Multiple attachments")
                 multiAttachment = message;
         }
@@ -224,7 +224,7 @@ public class PstToMboxConverterTests : IDisposable
         MimeMessage? withEmbedded = null;
         while (!parser.IsEndOfStream)
         {
-            var message = parser.ParseMessage(TestContext.Current.CancellationToken);
+            var message = parser.ParseMessage();
             if (message.Subject == "this message contains embedded MSG")
                 withEmbedded = message;
         }
