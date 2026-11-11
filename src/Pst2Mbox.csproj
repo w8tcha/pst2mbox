@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>pst2mbox</AssemblyName>
@@ -17,7 +17,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="XstReader.Api" Version="1.0.6" />
-    <PackageReference Include="MimeKit" Version="4.18.2" />
+    <PackageReference Include="MimeKit" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
